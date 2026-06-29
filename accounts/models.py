@@ -30,7 +30,7 @@ class UserManager(BaseUserManager):
             password=password,
         )
         user.is_staff = True
-        user.is_superuser = True
+        user.is_superadmin = True
         user.is_active = True
         user.is_admin = True
         user.save(using=self._db)
@@ -39,11 +39,11 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
 
-    Restaurant = 1
+    Vendor = 1
     Customer = 2
 
     ROLE_CHOICES = (
-    (Restaurant, 'Restaurant'),
+    (Vendor, 'Restaurant'),
     (Customer, 'Customer'),
 )
 
@@ -76,6 +76,13 @@ class User(AbstractBaseUser):
     
     def has_module_perms(self,app_label):
         return True
+
+    def get_role(self):
+        if self.role == 1:
+            user_role = "Restaurant"
+        elif self.role == 2:
+            user_role = "Customer"
+        return user_role
 
 
 class UserProfile(models.Model):
