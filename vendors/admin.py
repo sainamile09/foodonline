@@ -7,4 +7,4 @@ class VendorAdminList(admin.ModelAdmin):
 
 
 # Register your models here.
-admin.site.register(Vendor)
+admin.site.register(Vendor, VendorAdminList)

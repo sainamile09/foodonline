@@ -9,7 +9,7 @@ from .utils import detectUser,send_verification_email
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode
-
+from vendors.models import Vendor
 
 # Create your views here.
 
@@ -18,7 +18,7 @@ def registerUser(request):
         messages.warning(request,'You are already loggedin')
         return redirect('myAccount')
     elif request.method == 'POST':
-        form = UserForm(request.POST)
+        form = UserForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             password = form.cleaned_data['password']
             user = form.save(commit=False)
@@ -46,8 +46,8 @@ def registerVendor(request):
         messages.warning(request,'You are already loggedin')
         return redirect('myAccount')
     elif request.method == 'POST':
-        form = UserForm(request.POST)
-        v_form = VendorForm(request.POST, request.FILES)
+        form = UserForm(request.POST, request.FILES, instance=request.user)
+        v_form = VendorForm(request.POST, request.FILES, instance=request.user.vendor)
         if form.is_valid() and v_form.is_valid():
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
@@ -134,7 +134,11 @@ def custDashboard(request):
 @login_required(login_url = 'login')
 @user_passes_test(check_role_restaurant)
 def vendorDashboard(request):
-    return render(request,'accounts/vendorDashboard.html')
+    vendor = Vendor.objects.get(user=request.user)
+    context = {
+        'vendor':vendor,
+    }
+    return render(request,'accounts/vendorDashboard.html',context)
 
 
 def activate(request,uidb64,token):
